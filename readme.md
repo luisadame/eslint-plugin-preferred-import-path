@@ -1,215 +1,48 @@
-# Enforces a consistent use of conditional expressions in jsx (jsx-conditional/jsx-conditional)
+# Enforces a consistent use of preferred import paths (preferred-import-path/preferred-import-path)
 
-<a href="https://codecov.io/gh/luisadame/eslint-plugin-jsx-conditional">
-  <img src="https://codecov.io/gh/luisadame/eslint-plugin-jsx-conditional/branch/main/graph/badge.svg?token=7Z541HVSB6"/>
+<a href="https://codecov.io/gh/luisadame/eslint-plugin-preferred-import-path">
+  <img src="https://codecov.io/gh/luisadame/eslint-plugin-preferred-import-path/branch/main/graph/badge.svg?token=7Z541HVSB6"/>
 </a>
 
-Enforce or forbid the use of conditionals expressions using a ternary or a logical expression using an AND `&&` operator in JSX.
-In other words, it allows to keep a consistent use of the way jsx elements are showned based on a condition
+Enforce the use of preferred import path, it allows to keep a consistent use of import paths that may be aliased of typescript
+or webpack and you'd prefer your team to use the aliases, instead of relative paths, or absolute paths but that are longer and aliases
+keep them short
 
 **Fixable**: This rule is automatically fixable by using the `--fix` option on the command line.
 
 ## Rule details
 
-This rule checks that conditionals expressions or logical expression match a certain shape.
+This rule checks that import declaration sources are in line with the map of preferred paths.
 
-### Options
+This rule accepts an argument that conveys the paths you want to map to the preferred paths:
 
-This rule accepts as a first argument one of these two possible values:
-
-- `prefer-ternary`
-- `prefer-and-operator`
-
-The default value is `prefer-ternary`.
-
-It also accepts a second argument defining the options of the rule. Options are:
-
-- `exceptNotNullishAlternates`: this option is taken into account only on `prefer-and-operator` mode
-
-### `prefer-ternary`
-
-This option will check for logical expressions inside JSX code and if it finds a logical expression that follows the following shape:
-
-```jsx
-<>{identifier && JSXElement | JSXFragment}</>
-```
-
-And this would be auto fixable outputing the following code
-
-```jsx
-<>{identifier ? JSXElement | JSXFragment : null}</>
-```
-
-### Examples
-
-✅ Examples of valid code:
-
-```jsx
-function Component({ propA }) {
-  return <>{propA ? <span>Hello</span> : null}</>;
-}
-```
-
-```jsx
-function Component({ propA }) {
-  return <>{propA ? <span>Hello</span> : <span>Hello</span>}</>;
-}
-```
-
-```jsx
-function Component({ propA }) {
-  return (
-    <>
-      {propA ? (
-        <>
-          <span>Hello</span>
-          <span>Hello 2</span>
-        </>
-      ) : null}
-    </>
-  );
-}
-```
-
-❌ Examples of invalid code:
-
-```jsx
-function Component({ propA }) {
-  return <>{propA && <span>Hello</span>}</>;
-}
-```
-
-```jsx
-function Component({ propA }) {
-  return (
-    <>
-      {propA && <span>Hello</span>}
-      {!propA && <span>Hello</span>}
-    </>
-  );
-}
-```
-
-```jsx
-function Component({ propA }) {
-  return (
-    <>
-      {propA && (
-        <>
-          <span>Hello</span>
-          <span>Hello 2</span>
-        </>
-      )}
-    </>
-  );
-}
-```
-
-### `prefer-and-operator`
-
-This option will check for conditional expressions inside JSX code and if it finds a conditional expression that follows the following shape:
-
-```jsx
-<>{identifier ? JSXElement | JSXFragment : JSXElement | JSXFragment}</>
-```
-
-And this would be auto fixable outputing the following code
-
-```jsx
-<>
-  {identifier && JSXElement | JSXFragment}
-  {!identifier && JSXElement | JSXFragment}
-</>
-```
-
-Being two logical expressions where the first tests the condition and renders the consequent of the conditional expression and the second negates
-the test and renders the alternate.
-
-If a conditional expression is preferred over a logical expression when the alternate is not `null` or `undefined` you can tell the rule your
-preferences by using the option `exceptNotNullishAlternates` as a second argument in the rule declaration on `.eslintrc`
-
-Example:
-
-```javascript
+```js
 // .eslintrc.js
 module.exports = {
-  extends: [...],
-  plugins: [..., 'jsx-conditional'],
-  rules: {
-    ...
-    'jsx-conditional/jsx-conditional': ['error', 'prefer-and-operator', { exceptNotNullishAlternates: true }]
-    ...
-  }
+    rules: {
+        'preferred-import-path/preferred-import-path': {
+            'src/views', '@views',
+            'src/components', '@components',
+            'src/components/design-system', '@ui'
+        }
+    }
 }
 ```
 
-### Examples
+With this configuration when an import declaration is found it will check if the source of it is one of the keys of the map it will error/warn about the preference of using the value of such key.
 
-✅ Examples of valid code:
+For example, if we have this import:
 
-```jsx
-function Component({ propA }) {
-  return <>{propA && <span>Hello</span>}</>;
-}
+```js
+import { Modal } from 'src/components/Modal';
 ```
 
-```jsx
-function Component({ propA }) {
-  return (
-    <>
-      {propA && <span>Hello</span>}
-      {!propA && <span>Hello</span>}
-    </>
-  );
-}
-```
+it will autofix to:
 
-```jsx
-function Component({ propA }) {
-  return (
-    <>
-      {propA && (
-        <>
-          <span>Hello</span>
-          <span>Hello 2</span>
-        </>
-      )}
-    </>
-  );
-}
-```
-
-❌ Examples of invalid code:
-
-```jsx
-function Component({ propA }) {
-  return <>{propA ? <span>Hello</span> : null}</>;
-}
-```
-
-This can be valid if you prefer by indicating it in the options argument `{ exceptNotNullishAlternates: true }`, but without it the following code would be invalid.
-
-```jsx
-function Component({ propA }) {
-  return <>{propA ? <span>Hello</span> : <span>Hello</span>}</>;
-}
-```
-
-```jsx
-function Component({ propA }) {
-  return (
-    <>
-      {propA ? (
-        <>
-          <span>Hello</span>
-          <span>Hello 2</span>
-        </>
-      ) : null}
-    </>
-  );
-}
+```js
+import { Modal } from '@components/Modal';
 ```
 
 ## When not to use it
 
-You can decide to not use it or turn it off if you are not concerned about the consistency of rendering elements based on a condition, either by using a ternary operator or using a logical expression
+This rule is intended for projects that want to enforce a convention on the use of certain import declarations, most of the time this won't be the case and this rule won't be needed.
