@@ -73,6 +73,20 @@ const invalidTestCases = [
       },
     ],
   },
+  {
+    code: `import Button from '$/components/Button'`,
+    output: `import Button from '@ui/Button'`,
+    options: [{ '$/components': '@ui' }],
+    errors: [
+      {
+        message: '`@ui` is preferred over `$/components`',
+        line: 1,
+        endLine: 1,
+        column: 20,
+        endColumn: 41,
+      },
+    ],
+  },
 ];
 
 const parserOptions = {
