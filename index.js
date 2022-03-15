@@ -1,29 +1,22 @@
 'use strict';
 
 const rules = {
-  'jsx-conditional': require('./lib/rules/jsx-conditional'),
+  'preferred-import-path': require('./lib/rules/preferred-import-path'),
 };
 
 module.exports = {
   rules,
   configs: {
     recommended: {
-      plugins: ['jsx-conditional'],
+      plugins: ['preferred-import-path'],
       parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-      rules: {
-        'jsx-conditional/jsx-conditional': 2,
+        ecmaVersion: 6,
       },
     },
     all: {
-      plugins: ['jsx-conditional'],
+      plugins: ['preferred-import-path'],
       parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
+        ecmaVersion: 6,
       },
       rules,
     },
